@@ -11,7 +11,7 @@ import (
 func main()  {
   calories := readFileData()
   caloriesPerPerson := sumAllCalories(calories)
-  personCalories := maxCaloriesPerson(caloriesPerPerson)
+  personCalories := findMaxOfTopThreeElfCalories(caloriesPerPerson)
   fmt.Println(personCalories)
 }
 
@@ -52,14 +52,24 @@ func readFileData() []string {
   return caloriesData
 }
 
-func maxCaloriesPerson(summedCalories []int) int {
-  maxCalories := 0
+func findMaxOfTopThreeElfCalories(summedCalories []int) int {
+  mostCaloriesByFirstElf := 0
+  mostCaloriesBySecondElf := 0
+  mostCaloriesByThirdElf := 0
 
   for _, value := range summedCalories {
-    if(maxCalories < value) {
-      maxCalories = value
+
+    if (mostCaloriesByFirstElf < value) {
+      mostCaloriesByThirdElf = mostCaloriesBySecondElf
+      mostCaloriesBySecondElf = mostCaloriesByFirstElf
+      mostCaloriesByFirstElf = value
+    } else if (mostCaloriesBySecondElf < value) {
+      mostCaloriesByThirdElf = mostCaloriesBySecondElf
+      mostCaloriesBySecondElf = value
+    } else if (mostCaloriesByThirdElf < value) {
+      mostCaloriesByThirdElf = value
     }
   }
 
-  return maxCalories
+  return mostCaloriesByFirstElf + mostCaloriesBySecondElf + mostCaloriesByThirdElf
 }
