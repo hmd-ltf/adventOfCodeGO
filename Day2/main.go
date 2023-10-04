@@ -49,35 +49,50 @@ func findScore(roundDetails string) (int, error) {
 
   if (len(moves) == 2) {
     opponentsMove := moves[0]
-    usersMove := moves[1]
+    roundResult := moves[1]
     var isUsersWin bool
     var isDraw bool
 
-    if ((usersMove == "X" && opponentsMove == "A") || (usersMove == "Y" && opponentsMove == "B") || (usersMove == "Z" && opponentsMove == "C")) {
+    if (roundResult == "X") {
+      isUsersWin = false
+      isDraw = false
+    } else if (roundResult == "Y") {
       isUsersWin = false
       isDraw = true
-    } else if ((usersMove == "X" && opponentsMove == "C") || (usersMove == "Y" && opponentsMove == "A") || (usersMove == "Z" && opponentsMove == "B")) {
+      score += 3
+    } else {
       isUsersWin = true
       isDraw = false
-    } else {
-      isUsersWin = false
-      isDraw = false
-    }
-
-    if (isUsersWin) {
       score += 6
-    } else if (isDraw) {
-      score += 3
     }
 
-    if (usersMove == "X") {
-      score += 1
-    } else if (usersMove == "Y") {
-      score += 2
-    } else if (usersMove == "Z") {
-      score += 3
-    }
+    if (opponentsMove == "A") {
+      if (isUsersWin) {
+        score += 2
+      } else if (isDraw) {
+        score += 1
+      } else {
+        score += 3
+      }
+    } else if (opponentsMove == "B") {
+      if (isUsersWin) {
+        score += 3
+      } else if (isDraw) {
+        score += 2
+      } else {
+        score += 1
+      }
 
+    } else {
+      if (isUsersWin) {
+        score += 1
+      } else if (isDraw) {
+        score += 3
+      } else {
+        score += 2
+      }
+
+    }
   } else {
     return 0, errors.New("Invalid turnDetails")
   }
