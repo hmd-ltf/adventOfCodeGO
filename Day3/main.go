@@ -13,12 +13,12 @@ type ruckSacks struct {
 }
 
 func main() {
-	ruckSacksDetails, _ := readFileData()
+	ruckSacksDetails := readFileData()
 
 	print(ruckSacksDetails)
 }
 
-func readFileData() ([]ruckSacks, error) {
+func readFileData() []ruckSacks {
 	var details []ruckSacks
 	file, _ := os.Open("data.txt")
 	scanner := bufio.NewScanner(file)
@@ -26,15 +26,10 @@ func readFileData() ([]ruckSacks, error) {
 	for scanner.Scan() {
 		var sackDetail ruckSacks
 		line := scanner.Text()
-		lineLength := len(line)
+		compartmentLength, _ := findSackCompartmentLength(line)
 
-		if lineLength == 0 || lineLength%2 != 0 {
-			fmt.Println("The input string cannot be divided equally.")
-			return nil, errors.New("The input string cannot be divided ")
-		}
-
-		sackDetail.firstCompartment = line[:lineLength/2]
-		sackDetail.secondCompartment = line[lineLength/2:]
+		sackDetail.firstCompartment = line[:compartmentLength]
+		sackDetail.secondCompartment = line[compartmentLength:]
 
 		details = append(details, sackDetail)
 	}
@@ -43,5 +38,15 @@ func readFileData() ([]ruckSacks, error) {
 		_ = file.Close()
 	}(file)
 
-	return details, nil
+	return details
+}
+
+func findSackCompartmentLength(line string) (int, error) {
+	lineLength := len(line)
+
+	if lineLength == 0 || lineLength%2 != 0 {
+		fmt.Println("The input string cannot be divided equally.")
+		return 0, errors.New("The input string cannot be divided ")
+	}
+	return lineLength / 2, nil
 }
