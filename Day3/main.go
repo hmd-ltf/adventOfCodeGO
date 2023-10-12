@@ -7,24 +7,62 @@ import (
 	"os"
 )
 
-type ruckSacks struct {
+type RuckSack struct {
 	firstCompartment  string
 	secondCompartment string
+	commonItem        rune
+	itemPriority      uint8
+}
+
+func calculateCommonItemPriority(sackDetails *RuckSack) {
+	calculatedPrioritiesMap := make(map[rune]uint8)
+
+MainLoop:
+	for _, firstVal := range sackDetails.firstCompartment {
+		for _, secondVal := range sackDetails.secondCompartment {
+			if firstVal == secondVal {
+				sackDetails.commonItem = firstVal
+				sackDetails.itemPriority = calculatedPriority(firstVal, calculatedPrioritiesMap)
+				break MainLoop
+			}
+		}
+	}
+}
+
+func calculatedPriority(commonItem rune, priorityMap map[rune]uint8) uint8 {
+	priority, isPriorityCalculated := priorityMap[commonItem]
+
+	if !isPriorityCalculated {
+		if commonItem <= 96 { // Its capital
+			priority = uint8(commonItem) - 38
+		} else {
+			priority = uint8(commonItem) - 96
+		}
+		priorityMap[commonItem] = priority
+	}
+
+	return priority
 }
 
 func main() {
+	var totalPriority uint16
 	ruckSacksDetails := readFileData()
 
-	print(ruckSacksDetails)
+	for _, sackDetails := range ruckSacksDetails {
+		calculateCommonItemPriority(&sackDetails)
+		totalPriority = uint16(sackDetails.itemPriority) + totalPriority
+	}
+
+	print(totalPriority)
 }
 
-func readFileData() []ruckSacks {
-	var details []ruckSacks
+func readFileData() []RuckSack {
+	var details []RuckSack
 	file, _ := os.Open("data.txt")
 	scanner := bufio.NewScanner(file)
 
 	for scanner.Scan() {
-		var sackDetail ruckSacks
+		var sackDetail RuckSack
 		line := scanner.Text()
 		compartmentLength, _ := findSackCompartmentLength(line)
 
