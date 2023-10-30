@@ -14,20 +14,23 @@ type RuckSack struct {
 	itemPriority      uint8
 }
 
-func calculateCommonItemPriority(sackDetails *RuckSack) {
-	calculatedPrioritiesMap := make(map[rune]uint8)
+/* For part 1
+	func calculateCommonItemPriority(sackDetails *RuckSack) {
+		calculatedPrioritiesMap := make(map[rune]uint8)
 
 MainLoop:
-	for _, firstVal := range sackDetails.firstCompartment {
-		for _, secondVal := range sackDetails.secondCompartment {
-			if firstVal == secondVal {
-				sackDetails.commonItem = firstVal
-				sackDetails.itemPriority = calculatedPriority(firstVal, calculatedPrioritiesMap)
-				break MainLoop
+
+		for _, firstVal := range sackDetails.firstCompartment {
+			for _, secondVal := range sackDetails.secondCompartment {
+				if firstVal == secondVal {
+					sackDetails.commonItem = firstVal
+					sackDetails.itemPriority = calculatedPriority(firstVal, calculatedPrioritiesMap)
+					break MainLoop
+				}
 			}
 		}
 	}
-}
+*/
 
 func calculatedPriority(commonItem rune, priorityMap map[rune]uint8) uint8 {
 	priority, isPriorityCalculated := priorityMap[commonItem]
@@ -47,13 +50,48 @@ func calculatedPriority(commonItem rune, priorityMap map[rune]uint8) uint8 {
 func main() {
 	var totalPriority uint16
 	ruckSacksDetails := readFileData()
+	calculatedPrioritiesMap := make(map[rune]uint8)
 
-	for _, sackDetails := range ruckSacksDetails {
+	/* for part 1
+	   	for _, sackDetails := range ruckSacksDetails {
 		calculateCommonItemPriority(&sackDetails)
 		totalPriority = uint16(sackDetails.itemPriority) + totalPriority
 	}
+	*/
+
+	for i := 0; i < len(ruckSacksDetails); i += 3 {
+		commonItems := findCommonBadgeItem(ruckSacksDetails[i], ruckSacksDetails[i+1], ruckSacksDetails[i+2])
+		badge := rune(commonItems[0])
+		totalPriority = totalPriority + uint16(calculatedPriority(badge, calculatedPrioritiesMap))
+	}
 
 	print(totalPriority)
+}
+
+func findCommonBadgeItem(sack1 RuckSack, sack2 RuckSack, sack3 RuckSack) string {
+	sack1Items := sack1.firstCompartment + sack1.secondCompartment
+	sack2Items := sack2.firstCompartment + sack2.secondCompartment
+	sack3Items := sack3.firstCompartment + sack3.secondCompartment
+
+	return findCommonElements(findCommonElements(sack1Items, sack2Items), sack3Items)
+}
+
+func findCommonElements(str1 string, str2 string) string {
+	existingCharacters := make(map[rune]bool)
+
+	for _, char := range str1 {
+		existingCharacters[char] = true
+	}
+
+	common := ""
+
+	for _, char := range str2 {
+		if existingCharacters[char] {
+			common += string(char)
+		}
+	}
+
+	return common
 }
 
 func readFileData() []RuckSack {
@@ -86,5 +124,6 @@ func findSackCompartmentLength(line string) (int, error) {
 		fmt.Println("The input string cannot be divided equally.")
 		return 0, errors.New("The input string cannot be divided ")
 	}
+
 	return lineLength / 2, nil
 }
