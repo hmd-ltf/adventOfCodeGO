@@ -19,22 +19,29 @@ type RangePairs struct {
 
 func main() {
 	rangePairs := readFileData()
-	coveringRangeCount := calculateCoveredRangeCount(rangePairs)
+	coveringRangeCount, overLappingRangeCount := calculateCoveredRangeAndOverLappingRangeCount(rangePairs)
 
-	print(coveringRangeCount)
+	println(coveringRangeCount)
+	println(overLappingRangeCount)
 }
 
-func calculateCoveredRangeCount(pairs []RangePairs) int {
-	var count int
+func calculateCoveredRangeAndOverLappingRangeCount(pairs []RangePairs) (int, int) {
+	var coveredRange int
+	var overLappingRange int
 
 	for _, pair := range pairs {
 		if (pair.firstPair.startingNumber <= pair.secondPair.startingNumber && pair.firstPair.endingNumber >= pair.secondPair.endingNumber) ||
 			(pair.firstPair.startingNumber >= pair.secondPair.startingNumber && pair.firstPair.endingNumber <= pair.secondPair.endingNumber) {
-			count++
+			coveredRange++
+		}
+
+		if (pair.firstPair.endingNumber >= pair.secondPair.startingNumber && pair.firstPair.startingNumber <= pair.secondPair.startingNumber) ||
+			(pair.secondPair.endingNumber >= pair.firstPair.startingNumber && pair.secondPair.startingNumber <= pair.firstPair.startingNumber) {
+			overLappingRange++
 		}
 	}
 
-	return count
+	return coveredRange, overLappingRange
 }
 
 func readFileData() []RangePairs {
