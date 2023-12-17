@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
+	"strconv"
 	"unicode"
 )
 
@@ -23,6 +25,9 @@ type CrateStack struct {
 	items []rune
 }
 
+func (s *CrateStack) ReversePush(item rune) {
+	s.items = append(s.items, item)
+}
 func (s *CrateStack) Push(item rune) {
 	s.items = append([]rune{item}, s.items...)
 }
@@ -49,6 +54,7 @@ func main() {
 		applyMoveOnCrates(crateStacks, move)
 	}
 
+	print("Crates at top: ")
 	for _, crateStack := range crateStacks {
 		print(string(crateStack.crates.Peek()))
 	}
@@ -133,12 +139,17 @@ func mapCratesToCrateStacks(cratesString []string, crateStacks []*CratesColumns)
 
 func mapDataToMoves(moveStrings []string) []*Move {
 	moves := make([]*Move, 0)
+	pattern := `move (\d+) from (\d+) to (\d+)`
+	re := regexp.MustCompile(pattern)
 
 	for _, moveString := range moveStrings {
+		matches := re.FindStringSubmatch(moveString)
+		moveCount, _ := strconv.Atoi(matches[1])
+
 		move := Move{
-			moves:     int(moveString[5]) - 48,
-			fromCrate: rune(moveString[12]),
-			toCrate:   rune(moveString[17]),
+			moves:     moveCount,
+			fromCrate: rune(matches[2][0]),
+			toCrate:   rune(matches[3][0]),
 		}
 
 		moves = append(moves, &move)
@@ -149,11 +160,15 @@ func mapDataToMoves(moveStrings []string) []*Move {
 }
 
 func applyMoveOnCrates(crateStacks []*CratesColumns, move *Move) {
-	fromCrate, toCrate, _ := fetchCrateWithLabel(move.fromCrate, move.toCrate, crateStacks)
+	fromCrate, toCrate, err := fetchCrateWithLabel(move.fromCrate, move.toCrate, crateStacks)
 
-	for i := 0; i < move.moves; i++ {
-		data, _ := fromCrate.crates.Pop()
-		toCrate.crates.Push(data)
+	if err == nil {
+		for i := 0; i < move.moves; i++ {
+			data, _ := fromCrate.crates.Pop()
+			toCrate.crates.ReversePush(data)
+		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
