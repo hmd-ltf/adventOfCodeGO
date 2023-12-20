@@ -188,23 +188,9 @@ func applyMoveOnCrates(crateStacks []*CratesColumns, move *Move) {
 func applyMultipleMovesOnCrates(crateStacks []*CratesColumns, move *Move) {
 	fromCrate, toCrate, err := fetchCrateWithLabel(move.fromCrate, move.toCrate, crateStacks)
 
-	move3 := move.moves / 3
-	has2Move := move.moves%3 == 2
-	has1Move := move.moves%3 == 1
-
 	if err == nil {
-		for i := 0; i < move3; i++ {
-			data, _ := fromCrate.crates.PopMultiple(3)
-			toCrate.crates.PushMultiple(data)
-		}
-		if has2Move {
-			data, _ := fromCrate.crates.PopMultiple(2)
-			toCrate.crates.PushMultiple(data)
-		}
-		if has1Move {
-			data, _ := fromCrate.crates.Pop()
-			toCrate.crates.ReversePush(data)
-		}
+		data, _ := fromCrate.crates.PopMultiple(move.moves)
+		toCrate.crates.PushMultiple(data)
 	} else {
 		fmt.Println(err)
 	}
