@@ -28,6 +28,9 @@ type CrateStack struct {
 func (s *CrateStack) ReversePush(item rune) {
 	s.items = append(s.items, item)
 }
+func (s *CrateStack) PushMultiple(item []rune) {
+	s.items = append(s.items, item...)
+}
 func (s *CrateStack) Push(item rune) {
 	s.items = append([]rune{item}, s.items...)
 }
@@ -38,6 +41,15 @@ func (s *CrateStack) Pop() (rune, error) {
 
 	top := s.items[len(s.items)-1]
 	s.items = s.items[:len(s.items)-1]
+	return top, nil
+}
+func (s *CrateStack) PopMultiple(number int) ([]rune, error) {
+	if len(s.items) < number {
+		return nil, fmt.Errorf("stack does not have enough elements")
+	}
+
+	top := s.items[:number]
+	s.items = s.items[:len(s.items)-number]
 	return top, nil
 }
 func (s *CrateStack) Peek() rune {
@@ -51,7 +63,8 @@ func (s *CrateStack) Peek() rune {
 func main() {
 	crateStacks, moves := readFileData()
 	for _, move := range moves {
-		applyMoveOnCrates(crateStacks, move)
+		//applyMoveOnCrates(crateStacks, move) // For 1
+		applyMultipleMovesOnCrates(crateStacks, move) // For 2 still under work
 	}
 
 	print("Crates at top: ")
@@ -164,6 +177,31 @@ func applyMoveOnCrates(crateStacks []*CratesColumns, move *Move) {
 
 	if err == nil {
 		for i := 0; i < move.moves; i++ {
+			data, _ := fromCrate.crates.Pop()
+			toCrate.crates.ReversePush(data)
+		}
+	} else {
+		fmt.Println(err)
+	}
+}
+
+func applyMultipleMovesOnCrates(crateStacks []*CratesColumns, move *Move) {
+	fromCrate, toCrate, err := fetchCrateWithLabel(move.fromCrate, move.toCrate, crateStacks)
+
+	move3 := move.moves / 3
+	has2Move := move.moves%3 == 2
+	has1Move := move.moves%3 == 1
+
+	if err == nil {
+		for i := 0; i < move3; i++ {
+			data, _ := fromCrate.crates.PopMultiple(3)
+			toCrate.crates.PushMultiple(data)
+		}
+		if has2Move {
+			data, _ := fromCrate.crates.PopMultiple(2)
+			toCrate.crates.PushMultiple(data)
+		}
+		if has1Move {
 			data, _ := fromCrate.crates.Pop()
 			toCrate.crates.ReversePush(data)
 		}
