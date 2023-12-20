@@ -34,15 +34,6 @@ func (s *CrateStack) PushMultiple(item []rune) {
 func (s *CrateStack) Push(item rune) {
 	s.items = append([]rune{item}, s.items...)
 }
-func (s *CrateStack) Pop() (rune, error) {
-	if len(s.items) == 0 {
-		return 0, fmt.Errorf("stack is empty")
-	}
-
-	top := s.items[len(s.items)-1]
-	s.items = s.items[:len(s.items)-1]
-	return top, nil
-}
 func (s *CrateStack) PopMultiple(number int) ([]rune, error) {
 	if len(s.items) < number {
 		return nil, fmt.Errorf("stack does not have enough elements")
@@ -177,8 +168,8 @@ func applyMoveOnCrates(crateStacks []*CratesColumns, move *Move) {
 
 	if err == nil {
 		for i := 0; i < move.moves; i++ {
-			data, _ := fromCrate.crates.Pop()
-			toCrate.crates.ReversePush(data)
+			data, _ := fromCrate.crates.PopMultiple(1)
+			toCrate.crates.PushMultiple(data)
 		}
 	} else {
 		fmt.Println(err)
