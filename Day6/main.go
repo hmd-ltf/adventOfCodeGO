@@ -8,7 +8,8 @@ import (
 
 func main() {
 	input := readFileData()
-	fmt.Println(findMarker(input))
+	fmt.Printf("Marker starts at: %d\n", findUniqueCharacters(input, 4))
+	fmt.Printf("Message starts at: %d\n", findUniqueCharacters(input, 14))
 }
 
 func readFileData() (input string) {
@@ -30,9 +31,9 @@ func readFileData() (input string) {
 	return ""
 }
 
-func findMarker(input string) int {
+func findUniqueCharacters(input string, uniqueChars int) int {
 	startInt := 0
-	lastInt := 4
+	lastInt := uniqueChars
 
 	for {
 		duplicate := characterLastDuplicateAt(input[startInt:lastInt])
