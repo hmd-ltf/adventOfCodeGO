@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -21,27 +22,48 @@ type Directory struct {
 	size                int64
 }
 
-//I really think that I should use dfs to calculate the size of each directory
+func (wd *Directory) calculateDirectorySize() {
+	for _, dir := range wd.internalDirectories {
+		dir.calculateDirectorySize()
+	}
+	for _, file := range wd.files {
+		wd.size = wd.size + file.size
+	}
+	for _, dir := range wd.internalDirectories {
+		wd.size = wd.size + dir.size
+	}
+}
+func (wd *Directory) collectDirectoriesWithSize(minSize, maxSize int64) []*Directory {
+	var directories []*Directory
+
+	for _, dir := range wd.internalDirectories {
+		directories = append(directories, dir.collectDirectoriesWithSize(minSize, maxSize)...)
+	}
+
+	if wd.size >= minSize && wd.size <= maxSize {
+		directories = append(directories, wd)
+	}
+
+	return directories
+}
 
 func main() {
 	directory := loadFilesData()
 	directory = executeCommand("$ cd /", directory)
+	directory.calculateDirectorySize()
 
-	calculateDirectoriesData(directory)
-
-	println(directory.size)
+	answer1(directory)
 }
 
-func calculateDirectoriesData(workingDirectory *Directory) {
-	for _, dir := range workingDirectory.internalDirectories {
-		calculateDirectoriesData(dir)
+func answer1(workingDirectory *Directory) {
+	dirWithSize10000 := workingDirectory.collectDirectoriesWithSize(0, 100000)
+	var size int64
+
+	for _, dir := range dirWithSize10000 {
+		size += dir.size
 	}
-	for _, file := range workingDirectory.files {
-		workingDirectory.size = workingDirectory.size + file.size
-	}
-	for _, dir := range workingDirectory.internalDirectories {
-		workingDirectory.size = workingDirectory.size + dir.size
-	}
+
+	fmt.Printf("Sum of size of all directories less than 10000 is %d", size)
 }
 
 func loadFilesData() *Directory {
