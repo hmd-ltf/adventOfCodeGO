@@ -53,6 +53,7 @@ func main() {
 	directory.calculateDirectorySize()
 
 	answer1(directory)
+	answer2(directory)
 }
 
 func answer1(workingDirectory *Directory) {
@@ -64,6 +65,25 @@ func answer1(workingDirectory *Directory) {
 	}
 
 	fmt.Printf("Sum of size of all directories less than 10000 is %d", size)
+}
+func answer2(workingDirectory *Directory) {
+	currentSize := workingDirectory.size
+	updateSize := 30000000
+	systemSize := 70000000
+	unusedSpace := int64(systemSize) - currentSize
+	toBeDeletedSpace := int64(updateSize) - unusedSpace
+
+	directoriesThatCanBeDeleted := workingDirectory.collectDirectoriesWithSize(toBeDeletedSpace, int64(systemSize))
+
+	smallestDir := directoriesThatCanBeDeleted[0]
+
+	for _, dir := range directoriesThatCanBeDeleted {
+		if smallestDir.size > dir.size {
+			smallestDir = dir
+		}
+	}
+
+	fmt.Printf("\nSize of the smallest directory that can be deleted is %d", smallestDir.size)
 }
 
 func loadFilesData() *Directory {
