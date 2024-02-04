@@ -21,10 +21,29 @@ type Directory struct {
 	size                int64
 }
 
+//I really think that I should use dfs to calculate the size of each directory
+
 func main() {
 	directory := loadFilesData()
 	directory = executeCommand("$ cd /", directory)
+
+	calculateDirectoriesData(directory)
+
+	println(directory.size)
 }
+
+func calculateDirectoriesData(workingDirectory *Directory) {
+	for _, dir := range workingDirectory.internalDirectories {
+		calculateDirectoriesData(dir)
+	}
+	for _, file := range workingDirectory.files {
+		workingDirectory.size = workingDirectory.size + file.size
+	}
+	for _, dir := range workingDirectory.internalDirectories {
+		workingDirectory.size = workingDirectory.size + dir.size
+	}
+}
+
 func loadFilesData() *Directory {
 	workingDirectory := &Directory{
 		parent:              nil,
